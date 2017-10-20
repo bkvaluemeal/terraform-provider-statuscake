@@ -1,5 +1,9 @@
 package statuscake
 
+import (
+	"strings"
+)
+
 type autheticationErrorResponse struct {
 	ErrNo int
 	Error string
@@ -27,6 +31,7 @@ type detailResponse struct {
 	ContactID       int      `json:"ContactID"`
 	Status          string   `json:"Status"`
 	Uptime          float64  `json:"Uptime"`
+	CustomHeader    string   `json:"CustomHeader"`
 	CheckRate       int      `json:"CheckRate"`
 	Timeout         int      `json:"Timeout"`
 	LogoImage       string   `json:"LogoImage"`
@@ -44,6 +49,9 @@ type detailResponse struct {
 	DownTimes       int      `json:"DownTimes,string"`
 	Sensitive       bool     `json:"Sensitive"`
 	TriggerRate     int      `json:"TriggerRate,string"`
+	UseJar          bool     `json:"UseJar"`
+	PostRaw         string   `json:"PostRaw"`
+	StatusCodes     []string `json:"StatusCodes"`
 }
 
 func (d *detailResponse) test() *Test {
@@ -53,6 +61,7 @@ func (d *detailResponse) test() *Test {
 		Paused:        d.Paused,
 		WebsiteName:   d.WebsiteName,
 		WebsiteURL:    d.URI,
+		CustomHeader:  d.CustomHeader,
 		ContactID:     d.ContactID,
 		Status:        d.Status,
 		Uptime:        d.Uptime,
@@ -66,5 +75,8 @@ func (d *detailResponse) test() *Test {
 		DoNotFind:     d.DoNotFind,
 		Port:          d.Port,
 		TriggerRate:   d.TriggerRate,
+		UseJar:        d.UseJar,
+		PostRaw:       d.PostRaw,
+		StatusCodes:   strings.Join(d.StatusCodes[:],","),
 	}
 }
