@@ -10,6 +10,11 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+const defaultStatusCodes = "204, 205, 206, 303, 400, 401, 403, 404, 405, " +
+	"406, 408, 410, 413, 444, 429, 494, 495, 496, 499, 500, 501, 502, 503, " +
+	"504, 505, 506, 507, 508, 509, 510, 511, 521, 522, 523, 524, 520, 598, " +
+	"599"
+
 func resourceStatusCakeTest() *schema.Resource {
 	return &schema.Resource{
 		Create: CreateTest,
@@ -76,6 +81,38 @@ func resourceStatusCakeTest() *schema.Resource {
 				Optional: true,
 				Default:  5,
 			},
+
+			"basic_user": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"basic_pass": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"contains_string": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"custom_header": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"post_raw": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
+			"status_codes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  defaultStatusCodes,
+			},
 		},
 	}
 }
@@ -94,6 +131,12 @@ func CreateTest(d *schema.ResourceData, meta interface{}) error {
 		Confirmation: d.Get("confirmations").(int),
 		Port:         d.Get("port").(int),
 		TriggerRate:  d.Get("trigger_rate").(int),
+		BasicUser:    d.Get("basic_user").(string),
+		BasicPass:    d.Get("basic_pass").(string),
+		FindString:   d.Get("contains_string").(string),
+		CustomHeader: d.Get("custom_header").(string),
+		PostRaw:      d.Get("post_raw").(string),
+		StatusCodes:  d.Get("status_codes").(string),
 	}
 
 	log.Printf("[DEBUG] Creating new StatusCake Test: %s", d.Get("website_name").(string))
@@ -159,6 +202,12 @@ func ReadTest(d *schema.ResourceData, meta interface{}) error {
 	d.Set("confirmations", testResp.Confirmation)
 	d.Set("port", testResp.Port)
 	d.Set("trigger_rate", testResp.TriggerRate)
+	d.Set("basic_user", testResp.BasicUser)
+	d.Set("basic_pass", testResp.BasicPass)
+	d.Set("contains_string", testResp.FindString)
+	d.Set("custom_header", testResp.CustomHeader)
+	d.Set("post_raw", testResp.PostRaw)
+	d.Set("status_codes", testResp.StatusCodes)
 
 	return nil
 }
@@ -204,13 +253,24 @@ func getStatusCakeTestInput(d *schema.ResourceData) *statuscake.Test {
 	if v, ok := d.GetOk("trigger_rate"); ok {
 		test.TriggerRate = v.(int)
 	}
-
-	defaultStatusCodes := "204, 205, 206, 303, 400, 401, 403, 404, 405, 406, " +
-		"408, 410, 413, 444, 429, 494, 495, 496, 499, 500, 501, 502, 503, " +
-		"504, 505, 506, 507, 508, 509, 510, 511, 521, 522, 523, 524, 520, " +
-		"598, 599"
-
-	test.StatusCodes = defaultStatusCodes
+	if v, ok := d.GetOk("basic_user"); ok {
+		test.BasicUser = v.(string)
+	}
+	if v, ok := d.GetOk("basic_pass"); ok {
+		test.BasicPass = v.(string)
+	}
+	if v, ok := d.GetOk("contains_string"); ok {
+		test.FindString = v.(string)
+	}
+	if v, ok := d.GetOk("custom_header"); ok {
+		test.CustomHeader = v.(string)
+	}
+	if v, ok := d.GetOk("post_raw"); ok {
+		test.PostRaw = v.(string)
+	}
+	if v, ok := d.GetOk("status_codes"); ok {
+		test.StatusCodes = v.(string)
+	}
 
 	return test
 }
